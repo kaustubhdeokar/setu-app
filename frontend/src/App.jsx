@@ -3,6 +3,8 @@ import "./App.css";
 import KYCValidation from "./components/KYCValidation";
 import Login from "./components/Login";
 import Registration from "./components/Registration";
+import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import {
   BrowserRouter as Router,
@@ -10,6 +12,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import UserStats from "./components/UserStats";
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
@@ -20,21 +23,39 @@ function App() {
   const [count, setCount] = useState(0);
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/register" element={<Registration />} />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/kyc"
-          element={
-            <PrivateRoute>
-              <KYCValidation />
-            </PrivateRoute>
-          }
-        />
-        <Route path="/" element={<Login />} />
-      </Routes>
-    </Router>
+    <div>
+      <Router>
+        <Routes>
+          <Route path="/register" element={<Registration />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/kyc"
+            element={
+              <PrivateRoute>
+                <KYCValidation />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/stats"
+            element={
+              <PrivateRoute>
+                <UserStats />
+              </PrivateRoute>
+            }
+          />
+
+          <Route path="/" element={<Login />} />
+        </Routes>
+        <p>
+        Go to <NavLink to="/stats">/stats</NavLink> for statistics. (Admin){" "}
+        <br />
+        Go to <NavLink to="/login">/login</NavLink> for login. <br />
+        Go to <NavLink to="/kyc">/kyc</NavLink> for validation.
+      </p>
+
+      </Router>
+    </div>
   );
 }
 
