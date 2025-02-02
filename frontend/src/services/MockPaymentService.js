@@ -3,12 +3,13 @@ import config from "../config/config";
 
 export const makePaymentRequest = async () => 
 {
-
+    const token = localStorage.getItem('token'); 
     const API_URL = config.apiUrl;
     try{
         const response = await axios.post(`${API_URL}/api/verify/ban/reverse`, {}, {
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             validateStatus: false,
             timeout: 50000,
@@ -28,11 +29,13 @@ export const makePaymentRequest = async () =>
 }
 
 export const fetchBankDetails = async (request_id) => {
+    const token = localStorage.getItem('token'); 
     const API_URL = config.apiUrl;
     try{
         const response = await axios.get(`${API_URL}/api/verify/ban/reverse/`+request_id, {
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             validateStatus: false,
             timeout: 30000,

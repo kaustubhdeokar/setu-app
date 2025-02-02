@@ -1,5 +1,6 @@
 import React, { useReducer, useState } from "react";
 import { verifyPan } from "../services/PanService";
+import { useNavigate } from 'react-router-dom';
 import {
   makePaymentRequest,
   fetchBankDetails,
@@ -89,6 +90,7 @@ const stepConfig = {
 export default function KYCValidation() {
   const [state, dispatch] = useReducer(kycReducer, initialState);
   const [pan, setPan] = useState("");
+  const navigate = useNavigate();
 
   const handlePanValidation = async () => {
     dispatch({ type: ACTIONS.SET_LOADING, payload: true });
@@ -106,7 +108,12 @@ export default function KYCValidation() {
           type: ACTIONS.SET_SUCCESS,
           payload: STEPS.PAYMENT_INITIATION,
         });
-      } else {
+      } 
+      else if(response.status === 401){
+        localStorage.removeItem('token');
+        navigate('/');
+      }
+      else {
         throw new Error("Invalid PAN card number");
       }
     } catch (error) {
@@ -135,7 +142,12 @@ export default function KYCValidation() {
           response.data.bank_account,
           response.data.ifsc
         );
-      } else {
+      } 
+      else if(response.status === 401){
+        localStorage.removeItem('token');
+        navigate('/');
+      }
+      else {
         throw new Error("Payment initiation failed");
       }
     } catch (error) {
@@ -155,7 +167,12 @@ export default function KYCValidation() {
         response.data.ifsc === ifsc
       ) {
         dispatch({ type: ACTIONS.SET_SUCCESS, payload: STEPS.COMPLETED });
-      } else {
+      }
+      else if(response.status === 401){
+        localStorage.removeItem('token');
+        navigate('/');
+      }
+      else {
         throw new Error("Bank account verification failed");
       }
     } catch (error) {
