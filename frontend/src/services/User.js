@@ -6,6 +6,8 @@ export const registration = async (formData) => {
     
     const payload = {username: formData.username, password: formData.password, pan_number: formData.panNumber};
     const API_URL = config.apiUrl;
+    console.log('Making request to:', `${API_URL}/register`);
+    console.log('With payload:', payload);
 
     try{
         const response = await axios.post(`${API_URL}/register`, payload, {
@@ -15,7 +17,7 @@ export const registration = async (formData) => {
             validateStatus: false,
             timeout: 50000,
         });
-        console.log('Response received:', response);
+        console.log('Response:', response);
         return response;
     }
     catch (error) {
@@ -32,7 +34,7 @@ export const registration = async (formData) => {
 export const login = async (formData) => {
     const payload = {username: formData.username, password: formData.password};
     const API_URL = config.apiUrl;
-    console.log(JSON.stringify(payload));
+    console.log('API URL:', `${API_URL}/register`);
 
     const base64Credentials = btoa(`${formData.username}:${formData.password}`);
 

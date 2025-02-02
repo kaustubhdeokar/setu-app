@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  setubackend:
+    image: setubackend
+    depends_on:
+      - setudb
+    environment:
+      MYSQL_HOST: setudb
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: Kaustubh1
+      MYSQL_PASSWORD: Kaustubh1
+      MYSQL_DB: setudb
+      MYSQL_PORT: 3306
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+
+  setudb:
+    image: mysql:8.0-debian
+    environment:
+      MYSQL_ROOT_PASSWORD: Kaustubh1
+      MYSQL_DATABASE: setudb
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 3
+
+networks:
+  app-network:
+    driver: bridge

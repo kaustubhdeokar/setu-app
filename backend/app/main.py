@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Request
-from app.pan import router as pan_verification_router
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
+from pan import router as pan_verification_router
 from app.rpd import router as rpd_router
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -18,12 +18,28 @@ app.include_router(rpd_router)
 security = HTTPBasic()
 init_db()
 
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173",
+    "http://setufrontend:4173",  # Add Docker service name
+    "http://172.31.0.4:4173",
+    "http://172.31.0.4:4173"
+    # Add these variations too
+    "http://0.0.0.0:4173",
+    "http://setufrontend:3000",
+    "http://172.31.0.4:3000",
+    # Allow all Docker network IPs temporarily for debugging
+    "http://172.31.0.*:4173"
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]  # Add this line
 )
 
 class UserCreate(BaseModel):
@@ -31,6 +47,16 @@ class UserCreate(BaseModel):
     password: str
     pan_number:str
     
+@app.options("/login")
+async def options_handler(response: Response):
+    print("Received OPTIONS request")
+    return {"status": "ok"}
+
+@app.options("/register")
+async def options_handler(response: Response):
+    print("Received OPTIONS request")
+    return {"status": "ok"}
+
 @app.post("/register", response_model=dict)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.username == user.username).first()
