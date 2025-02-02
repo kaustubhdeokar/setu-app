@@ -58,8 +58,8 @@ headers = {
 async def webhook_listener(request: Request):
     
     try:
-        data = await get_data(request)
-        # print("Received Webhook Data:", data)
+        data = await request.json()
+        print("Received Webhook Data:", data)
         request_id = data.get("data").get("rpd",{}).get("id", {})
         if not request_id:
             raise HTTPException(status_code=400, content={"error": "Missing requestId"})
@@ -70,7 +70,7 @@ async def webhook_listener(request: Request):
     
     except Exception as e:
         print(f"Error processing webhook: {str(e)}")
-        raise HTTPException(status_code=500, content={"error": str(e)})
+        raise HTTPException(status_code=500, message={"error": str(e)})
 
 async def get_data(req):
     if BASE_URI == POSTMAN_LOCAL_SERVER_URL:
@@ -135,7 +135,7 @@ async def validate_rpd(request_model:RequestModel, request: Request, current_use
         ## waiting for response from webhook.
 
         try:
-            await wait_for(event.wait(), timeout=10.0)  # 10 seconds timeout
+            await wait_for(event.wait(), timeout=40.0)  # 10 seconds timeout
             webhook_data = webhook_manager.get_response(request_id)
             print('response received:', webhook_data)
             if not webhook_data:

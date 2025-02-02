@@ -40,6 +40,18 @@ services:
     networks:
       - app-network
 
+  ngrok:
+    image: ngrok/ngrok:latest
+    depends_on:
+      - setubackend
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTH_TOKEN}
+    command: "http setubackend:8000"
+    ports:
+      - "4040:4040"  # Ngrok web interface
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
