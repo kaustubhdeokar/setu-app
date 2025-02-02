@@ -1,19 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import KYCValidation from './components/KYCValidation'
+import { useState } from "react";
+import "./App.css";
+import KYCValidation from "./components/KYCValidation";
+import Login from "./components/Login";
+import Registration from "./components/Registration";
+
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+
+const PrivateRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  return token ? children : <Navigate to="/login" />;
+};
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-    <div className="container mx-auto">
-      <h1 className="text-2xl font-bold text-center mb-8">KYC Verification Portal</h1>
-      <KYCValidation />
-    </div>
-  </div>
-  )
+    <Router>
+      <Routes>
+        <Route path="/register" element={<Registration />} />
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/kyc"
+          element={
+            <PrivateRoute>
+              <KYCValidation />
+            </PrivateRoute>
+          }
+        />
+        <Route path="/" element={<Login />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;

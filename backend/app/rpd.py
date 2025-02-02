@@ -1,8 +1,8 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 from fastapi import APIRouter, HTTPException
-from app.utils import BASE_URI
+from app.auth.utils import get_current_user, TokenData
 import requests
 from asyncio import Event, create_task, wait_for
 from typing import Dict, Any, Optional
@@ -86,7 +86,7 @@ def extract_account_info(data):
     }
 
 @router.get("/api/verify/ban/reverse/{request_id}")
-async def get_details(request_id:str, request: Request):
+async def get_details(request_id:str, request: Request, current_user: TokenData = Depends(get_current_user)):
     # return fake_response()
     request_path = request.url.path
     url = BASE_URI + request_path
@@ -105,12 +105,12 @@ def create_details_payload(response):
     }
 
 @router.post("/api/verify/ban/reverse")
-async def validate_rpd(request: Request):
+async def validate_rpd(request: Request, current_user: TokenData = Depends(get_current_user)):
     request_model = RequestModel()
     return await validate_rpd(request_model, request)
 
 @router.post("/api/verify/ban/reverse")
-async def validate_rpd(request_model:RequestModel, request: Request):
+async def validate_rpd(request_model:RequestModel, request: Request, current_user: TokenData = Depends(get_current_user)):
     async with httpx.AsyncClient() as client:
         # return fake_response()
         payload = create_payload(request_model)

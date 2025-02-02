@@ -1,10 +1,10 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException
 import requests
+from app.auth.utils import get_current_user, TokenData
 from typing import Dict, Any
-import httpx
 from app.utils import BASE_URI, POSTMAN_LOCAL_SERVER_URL, SANDBOX_API_URL
 
 router = APIRouter()
@@ -15,7 +15,7 @@ class PanVerificationRequest(BaseModel):
     reason: str
 
 @router.post("/api/verify/pan")
-def validate_pan(pan_request: PanVerificationRequest, request: Request):
+def validate_pan(pan_request: PanVerificationRequest, request: Request, current_user: TokenData = Depends(get_current_user)):
     request_path = request.url.path
     print(f"Request path: {request_path}")
     headers = {
