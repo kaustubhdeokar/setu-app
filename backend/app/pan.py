@@ -2,8 +2,10 @@ from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException
+from sqlalchemy.orm import Session
 import requests
 from app.auth.utils import get_current_user, TokenData
+from app.database import get_db, update_analytics
 from typing import Dict, Any
 from app.utils import BASE_URI, POSTMAN_LOCAL_SERVER_URL, SANDBOX_API_URL
 
@@ -31,12 +33,10 @@ def validate_pan(pan_request: PanVerificationRequest, request: Request, current_
     response = requests.post(url, json=payload, headers=headers)
     print('response:', response.json())
 
-    if response.status_code == 200:
+    if response.status_code >= 200 and response.status_code < 300:
         return success_response(response.json())
-    elif response.status_code == 400:
-        return bad_request(response.json())
     else:
-        return internal_server_error(response.json())
+        return update_analytics(response.json(), response.status_code, current_user.username)
 
 def get_url(base_url, request_path):
     return BASE_URI + request_path
@@ -59,14 +59,9 @@ def success_response(response):
         return JSONResponse(status_code=401, 
                 content={"verification": "failed", "message": "pan is invalid", "status":401})
 
-def bad_request(response):
+def update_analytics(response, status_code, username, db: Session = Depends(get_db)):
     error = response.get("error", {})
     details = error.get("detail","n/a")
     trace_id = error.get("traceId","N/a")
-    return JSONResponse(status_code=400, content={"message": details, "traceId": trace_id})
-
-def internal_server_error(response: Dict[str, Any]):
-    error = response.get("error", {})
-    details = error.get("detail","n/a")
-    trace_id = error.get("traceId","N/a")
-    return JSONResponse(status_code=500, content={"message": error, "traceId": trace_id})
+    update_analytics('kyc_fail', username, db) # can we do this in async way ?
+    return JSONResponse(status_code=status_code, content={"message": details, "traceId": trace_id})

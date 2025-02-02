@@ -54,3 +54,30 @@ export const fetchBankDetails = async (request_id) => {
     }
 
 }
+
+export const updateAnalytics = async (username) => {
+    const token = localStorage.getItem('token'); 
+    const API_URL = config.apiUrl;
+    console.log('update analytics triggered.')
+    try{
+        const response = await axios.get(`${API_URL}/update-analytics/`+username, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            validateStatus: false,
+            timeout: 30000,
+        });
+        console.log('Response received:', response);
+        return response;
+    }
+    catch (error) {
+        console.error('Error details:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            headers: error.response?.headers
+        });
+    throw error;
+    }
+}

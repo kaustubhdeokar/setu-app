@@ -4,7 +4,9 @@ from fastapi.responses import JSONResponse
 from fastapi import APIRouter, HTTPException
 from app.auth.utils import get_current_user, TokenData
 import requests
+from app.database import get_db, update_analytics
 from asyncio import Event, create_task, wait_for
+from sqlalchemy.orm import Session
 from typing import Dict, Any, Optional
 import httpx
 from app.utils import BASE_URI, POSTMAN_LOCAL_SERVER_URL, SANDBOX_API_URL
@@ -141,7 +143,15 @@ async def validate_rpd(request_model:RequestModel, request: Request, current_use
             payload = create_payload_from_webhook(webhook_data, request_id)
             return JSONResponse(status_code=200, content = payload)
         except TimeoutError:
-            raise HTTPException( status_code=408, content={"error": "Webhook timeout"})
+            return update_analytics(response.json(), response.status_code, current_user.username)
+
+def update_analytics(response, status_code, username, db: Session = Depends(get_db)):
+    error = response.get("error", {})
+    details = error.get("detail","n/a")
+    trace_id = error.get("traceId","N/a")
+    update_analytics('bank_fail', username, db) # can we do this in async way ?
+    return JSONResponse(status_code=status_code, content={"message": details, "traceId": trace_id})
+    
 
 def create_payload_from_webhook(webhook_data, request_id):
     bank_account = webhook_data["bank_account"]

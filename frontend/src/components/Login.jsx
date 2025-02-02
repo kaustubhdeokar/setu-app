@@ -25,6 +25,7 @@ const Login = () => {
 
       if (data.status === 200) {
         localStorage.setItem("token", data.token);
+        localStorage.setItem("user", response.data.user);
         navigate("/kyc");
       } else {
         setError(data.message || "Login failed");

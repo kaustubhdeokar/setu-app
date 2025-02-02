@@ -3,7 +3,7 @@ import { verifyPan } from "../services/PanService";
 import { useNavigate } from 'react-router-dom';
 import {
   makePaymentRequest,
-  fetchBankDetails,
+  fetchBankDetails,updateAnalytics
 } from "../services/MockPaymentService";
 
 const STEPS = {
@@ -166,6 +166,7 @@ export default function KYCValidation() {
         response.data.bank_account === bankAccount &&
         response.data.ifsc === ifsc
       ) {
+        updateAnalytics(localStorage.getItem("user"));
         dispatch({ type: ACTIONS.SET_SUCCESS, payload: STEPS.COMPLETED });
       }
       else if(response.status === 401){
@@ -192,6 +193,8 @@ export default function KYCValidation() {
         return handlePanValidation();
       case STEPS.PAYMENT_INITIATION:
         return handlePaymentInitiation();
+      case STEPS.COMPLETED:
+        return updateAnalytics(localStorage.getItem("user"));
       default:
         return null;
     }

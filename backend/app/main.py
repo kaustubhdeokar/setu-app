@@ -7,9 +7,10 @@ from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 import uvicorn
-from app.auth.utils import get_password_hash, verify_password, create_access_token
-from app.database import init_db, get_db, User 
+from app.auth.utils import get_password_hash, verify_password, create_access_token, TokenData, get_current_user
+from app.database import init_db, get_db, User, update_analytics, get_analytics_data
 from fastapi.responses import JSONResponse
+
 
 app = FastAPI()
 app.include_router(pan_verification_router)
@@ -24,7 +25,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 class UserCreate(BaseModel):
     username: str
@@ -59,12 +59,23 @@ def login(credentials: HTTPBasicCredentials = Depends(security), db: Session = D
             headers={"WWW-Authenticate": "Basic"},
         )
     return JSONResponse(status_code=200, content= 
-    {"status":200, "token":create_access_token(data={"sub": user.username})})
+    {"status":200, "user":user.username, "token":create_access_token(data={"sub": user.username})})
 
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the KYC Module API submission by Kaustubh !"}
+
+@app.get("/update-analytics/{username}")
+def success(username:str,db: Session = Depends(get_db),current_user: TokenData = Depends(get_current_user)):
+    update_analytics('pass',username,db)
+
+@app.get("/analyticsdata")
+def get_analytics(current_user: TokenData = Depends(get_current_user), db: Session = Depends(get_db)):
+    analytics_data = get_analytics_data(db)
+    if current_user.username != "admin":
+        return JSONResponse(status_code=401, content= {"message": "forbidden"})
+    return analytics_data
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

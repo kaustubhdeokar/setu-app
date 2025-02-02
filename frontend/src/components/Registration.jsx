@@ -23,9 +23,8 @@ const Registration = () => {
     e.preventDefault();
     try {
       const response = await registration(formData);
-      const data = await response.json();
 
-      if (data.status === 200) {
+      if (response.data.status === 200) {
         navigate("/login");
       } else {
         setError(data.message || "Registration failed");
