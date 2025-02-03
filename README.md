@@ -1,6 +1,12 @@
 ## About
 - A browser-based KYC (Know Your Customer) module that validates the PAN and Bank Account of a customer.
 
+### Flow
+- Taking pan card number as input do a verification, If output is (success - pan card verified & bank account is LINKED), proceed to the next step.
+- The request id we get from response of penny drop is used to fetch bank account details by the mock payment api and then verification is done by get details api.
+- - a. we can confirm if the mock payment has gone through using following route: - backend-server/api/verify/ban/reverse/mock_payment/{requestId} -> This gives us the bank information on the beeceptor end point. 
+- - b. get the bank & all details from endpoint - backend-server/api/verify/ban/reverse/{requestId} and compare result of the current and results of get details api call.
+
 ### Execution.
 
 #### Frontend - frontend/
@@ -14,7 +20,6 @@
 - running from backend folder ```uvicorn app.main:app --reload```
 - APIs.
   - http://127.0.0.1:8000/docs#/
-
 - using ngrok for webhooks configuration.
 - mysql db.
 - docker compose file of each service in docker-compose.yml.
