@@ -23,19 +23,18 @@ origins = [
     "http://127.0.0.1:5173",
     "http://localhost:4173",
     "http://127.0.0.1:4173",
-    "http://setufrontend:4173",  # Add Docker service name
+    "http://setufrontend:4173",
+    "http://157.245.105.144:4173",
     "http://172.31.0.4:4173",
-    "http://172.31.0.4:4173"
-    # Add these variations too
+    "http://172.31.0.4:4173",
     "http://0.0.0.0:4173",
     "http://setufrontend:3000",
     "http://172.31.0.4:3000",
-    # Allow all Docker network IPs temporarily for debugging
     "http://172.31.0.*:4173"
 ]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
