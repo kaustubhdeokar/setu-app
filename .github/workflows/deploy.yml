@@ -44,14 +44,17 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$DROPLET_IP" >> ~/.ssh/known_hosts
+          
+          # Test SSH connection
+          ssh -T -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@"$DROPLET_IP" "echo 'SSH connection successful!'"
 
           # Copy docker-compose.yml to the remote server
-          scp -i ~/.ssh/id_rsa docker-compose.yml root@"$DROPLET_IP":/root
+          scp -i ~/.ssh/id_rsa docker-compose.yml root@"$DROPLET_IP":/root/
 
           # SSH into droplet and deploy
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@"$DROPLET_IP" << 'EOF'
+          ssh -T -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@"$DROPLET_IP" << 'EOF'
           set -e
-          cd /path/to/project
+          cd /root
 
           # Create .env file
           echo "MYSQL_ROOT_PASSWORD='${MYSQL_ROOT_PASSWORD}'" > .env
