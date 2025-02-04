@@ -16,7 +16,7 @@ services:
       retries: 3
 
   setubackend:
-    image: setubackend
+    image: kaustubhdeokar/setubackend
     depends_on:
       - setudb
     environment:
@@ -32,7 +32,7 @@ services:
       - app-network
 
   setufrontend:
-    image: setufrontend
+    image: kaustubhdeokar/setufrontend
     depends_on:
       - setubackend
     ports:
