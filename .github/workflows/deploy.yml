@@ -1,4 +1,4 @@
-name: Deploy to Digital Ocean
+name: Deploy to Digital Ocean 2
 
 on:
   push:
@@ -17,11 +17,20 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
+          # Debugging: Check if secrets are set
+          echo "DOCKER_USERNAME length: ${#DOCKER_USERNAME}"
+          echo "DOCKER_PASSWORD length: ${#DOCKER_PASSWORD}"
+
+          # Login to Docker Hub
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker build -t "$DOCKER_USERNAME/setubackend" ./backend
-          docker build -t "$DOCKER_USERNAME/setufrontend" ./frontend
-          docker push "$DOCKER_USERNAME/setubackend"
-          docker push "$DOCKER_USERNAME/setufrontend"
+
+          # Build and tag Docker images
+          docker build -t "$DOCKER_USERNAME/setubackend:latest" ./backend
+          docker build -t "$DOCKER_USERNAME/setufrontend:latest" ./frontend
+
+          # Push Docker images
+          docker push "$DOCKER_USERNAME/setubackend:latest"
+          docker push "$DOCKER_USERNAME/setufrontend:latest"
 
       - name: Deploy to Digital Ocean Droplet
         env:
@@ -37,7 +46,7 @@ jobs:
           ssh-keyscan -H "$DROPLET_IP" >> ~/.ssh/known_hosts
 
           # Copy docker-compose.yml to the remote server
-          scp -i ~/.ssh/id_rsa docker-compose.yml root@"$DROPLET_IP":/path/to/project/
+          scp -i ~/.ssh/id_rsa docker-compose.yml root@"$DROPLET_IP":/root
 
           # SSH into droplet and deploy
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@"$DROPLET_IP" << 'EOF'
