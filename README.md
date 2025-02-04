@@ -22,3 +22,12 @@
 ### Links
 - Demo playlist: https://www.youtube.com/playlist?list=PLKsneWgsZjdE0LKaPm958kgKwdzzRnucr
 - App deployment : 157.245.105.144:4173/
+
+
+### Automatic Deployment
+- Create token for creating a droplet on digital ocean (In my case using a droplet)
+- Install doctl : https://docs.digitalocean.com/reference/doctl/how-to/install/
+  - and execute commands to setup a token
+  - Execute command to create a droplet: ```doctl compute droplet create --region blr1 --image ubuntu-24-04-x64 --size s-1vcpu-1gb <DROPLET-NAME>```
+  - To delete : ```doctl compute droplet delete <DROPLET-ID>```
+  - ![droplet.png](./droplet.png)

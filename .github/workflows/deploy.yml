@@ -1,0 +1,65 @@
+name: Deploy to Digital Ocean
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build and push Docker images
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: |
+        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        docker build -t $DOCKER_USERNAME/setubackend ./backend
+        docker build -t $DOCKER_USERNAME/setufrontend ./frontend
+        docker push $DOCKER_USERNAME/setubackend
+        docker push $DOCKER_USERNAME/setufrontend
+
+    - name: Deploy to Digital Ocean Droplet
+      env:
+        DROPLET_IP: ${{ secrets.DROPLET_IP }}
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+      run: |
+        # Setup SSH
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H $DROPLET_IP >> ~/.ssh/known_hosts
+
+        # Copy docker-compose and env file
+        scp -i ~/.ssh/id_rsa docker-compose.yml root@$DROPLET_IP:/path/to/project/
+        
+        # SSH into droplet and deploy
+        ssh -i ~/.ssh/id_rsa root@$DROPLET_IP << EOF
+          cd /path/to/project
+          
+          # Create .env file with secrets
+          cat > .env << INNEREOF
+MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+NGROK_AUTH_TOKEN=$NGROK_AUTH_TOKEN
+INNEREOF
+
+          # Pull latest images and restart containers
+          docker-compose pull
+          docker-compose down
+          docker-compose up -d
+          
+          # Wait for ngrok to start and get the URL
+          sleep 10  # Give ngrok time to establish connection
+          echo "Ngrok URLs:"
+          curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[].public_url'
+EOF
+
+    - name: Print deployment success
+      run: |
+        echo "Deployment completed successfully!"
+        echo "You can check your ngrok URL by visiting http://${{ env.DROPLET_IP }}:4040/status"
