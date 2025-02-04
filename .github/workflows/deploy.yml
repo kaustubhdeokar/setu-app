@@ -40,7 +40,7 @@ jobs:
           scp -i ~/.ssh/id_rsa docker-compose.yml root@"$DROPLET_IP":/path/to/project/
 
           # SSH into droplet and deploy
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@"$DROPLET_IP" <<EOF
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@"$DROPLET_IP" << 'EOF'
           set -e
           cd /path/to/project
 
@@ -60,9 +60,9 @@ jobs:
           sleep 10
           echo "Ngrok URLs:"
           curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[].public_url'
-EOF
+          EOF
 
       - name: Print deployment success
         run: |
           echo "Deployment completed successfully!"
-          echo "You can check your ngrok URL by visiting http://${{ env.DROPLET_IP }}:4040/status"
+          echo "You can check your ngrok URL by visiting http://${{ secrets.DROPLET_IP }}:4040/status"
