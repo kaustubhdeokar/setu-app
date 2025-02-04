@@ -26,11 +26,9 @@ origins = [
     "http://setufrontend:4173",
     "http://157.245.105.144:4173",
     "http://172.31.0.4:4173",
-    "http://172.31.0.4:4173",
-    "http://0.0.0.0:4173",
+    "http://167.71.234.205:4173",
     "http://setufrontend:3000",
     "http://172.31.0.4:3000",
-    "http://172.31.0.*:4173"
 ]
 app.add_middleware(
     CORSMiddleware,
