@@ -36,11 +36,12 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"]  # Add this line
+    expose_headers=["*"],
+    allow_origin_regex=r"https://.*\.ngrok-free\.app"
 )
 
 
