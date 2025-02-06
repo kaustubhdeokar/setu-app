@@ -29,8 +29,11 @@ origins = [
     "http://167.71.234.205:4173",
     "http://setufrontend:3000",
     "http://172.31.0.4:3000",
-    "http://157.245.105.144:4173"
+    "http://157.245.105.144:4173",
+    "https://*.ngrok-free.app",
+    "https://*.ngrok.io"
 ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -39,6 +42,7 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"]  # Add this line
 )
+
 
 class UserCreate(BaseModel):
     username: str
