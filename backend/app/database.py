@@ -1,19 +1,19 @@
-from sqlalchemy import Column, Integer, String, create_engine, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
 from app.auth.db_config import DATABASE_URL
-import time
-from pydantic import BaseModel, ValidationError
+from app.models import Base, User, Analytics
 
+from app.schemas import AnalyticsResponse
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+import time
 
 engine = None
 SessionLocal = None
-Base = declarative_base()
 
 def init_db():
-    for _ in range(10):  # Retry up to 10 times
+    global engine, SessionLocal
+    for _ in range(5): # retrying for 5 times.
         try:
-            global engine, SessionLocal
             engine = create_engine(DATABASE_URL)
             SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
             print("Connected to the database successfully!")
@@ -24,46 +24,15 @@ def init_db():
             print(f"Error: {e}")
             time.sleep(5)
 
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(50), unique=True, index=True)
-    hashed_password = Column(String(100))
-    pan_number = Column(String(10), unique=True)
-    analytics = relationship("Analytics", back_populates="user")
-    
-
-class Analytics(Base):
-    __tablename__ = "analytics"
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(50), ForeignKey('users.username'), nullable=False)
-    pass_kyc = Column(Integer, default=0)
-    fail_kyc = Column(Integer, default=0)
-    pass_bank = Column(Integer, default=0)
-    fail_bank = Column(Integer, default=0)
-    total_pass = Column(Integer, default=0)
-    total_fail = Column(Integer, default=0)
-    user = relationship("User", back_populates="analytics")
-
 def get_db():
     if SessionLocal is None:
-        raise Exception("Database not initialized. Call init_db() first.")    
+        raise Exception("Database not initialized. Call init_db() first.")
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
 
-class AnalyticsResponse(BaseModel):
-    id: int
-    username: str
-    pass_kyc: int
-    fail_kyc: int
-    pass_bank: int
-    fail_bank: int
-    total_pass: int
-    total_fail: int
-    
 def get_analytics_data(db):
     analytics_entries = db.query(Analytics).all()
     return [AnalyticsResponse(
