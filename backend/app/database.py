@@ -1,9 +1,9 @@
 from app.auth.db_config import DATABASE_URL
 from app.models import Base, User, Analytics
-
 from app.schemas import AnalyticsResponse
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
 import time
 
@@ -43,44 +43,5 @@ def get_analytics_data(db):
         pass_bank=entry.pass_bank,
         fail_bank=entry.fail_bank,
         total_pass=entry.total_fail,
-        total_fail=entry.total_fail
-    ) for entry in analytics_entries]
-
-
-def update_analytics(case, username, db):
-    analytics_entry = db.query(Analytics).filter(Analytics.username == username).first()
-    
-    if not analytics_entry:
-        if case == "kyc_fail":
-            new_analytics_entry = Analytics(
-                username=username,
-                fail_kyc=1,
-                total_fail=1
-            )
-        elif case == "bank_fail":
-            new_analytics_entry = Analytics(
-                username=username,
-                fail_bank=1,
-                total_fail=1
-            )
-        else:
-            new_analytics_entry = Analytics(
-                username=username,
-                pass_kyc=1,
-                pass_bank=1,
-                total_pass=1
-            )
-        db.add(new_analytics_entry)
-        db.commit()
-    else:
-        if case == "kyc_fail":
-            analytics_entry.fail_kyc += 1
-            analytics_entry.total_fail += 1
-        elif case == "bank_fail":
-            analytics_entry.fail_bank += 1
-            analytics_entry.total_fail += 1
-        else:
-            analytics_entry.pass_kyc+=1
-            analytics_entry.pass_bank+=1
-            analytics_entry.total_pass += 1
-    db.commit()
+        total_fail=entry.total_fail)
+        for entry in analytics_entries]

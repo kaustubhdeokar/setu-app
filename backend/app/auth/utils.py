@@ -1,7 +1,7 @@
 from passlib.context import CryptContext
 from jose import JWTError, jwt, ExpiredSignatureError
 from datetime import datetime, timedelta
-
+from app.schemas import TokenData
 import secrets
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -19,10 +19,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
-
 def get_password_hash(password):
     return pwd_context.hash(password)
-
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
@@ -55,17 +53,13 @@ def get_new_access_token(username: str, refresh_token: str):
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
 
-class TokenData(BaseModel):
-    username: str | None = None
-
-
 def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    print('in get current user')
+    print('in token validation.')
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         print('payload:', payload)
@@ -77,12 +71,11 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    except JWTError:
+            headers={"WWW-Authenticate": "Bearer"})
+    except JWTError as e:
+        print(f"JWTError: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate token.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+            headers={"WWW-Authenticate": "Bearer"})
     return token_data

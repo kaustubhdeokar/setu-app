@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from typing import Dict, Any, Optional
 
 class UserCreateDto(BaseModel):
     username: str
@@ -45,3 +46,14 @@ class AnalyticsResponse(BaseModel):
 class RefreshAccessTokenRequest(BaseModel):
     username: str
     refresh_token:str
+
+class RedirectionConfig(BaseModel):
+    redirectUrl: str
+    timeout: int
+
+class RequestModel(BaseModel):
+    redirectionConfig: Optional[RedirectionConfig] = None
+    additionalData: Optional[Dict[str, Any]] = None
+
+class TokenData(BaseModel):
+    username: str

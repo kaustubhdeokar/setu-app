@@ -1,25 +1,21 @@
+from contextlib import asynccontextmanager
 from typing import Optional
 
-from app.auth.utils import get_password_hash, verify_password, create_access_token, TokenData, get_current_user, \
-    get_new_access_token, create_refresh_token
-from app.database import init_db, get_db, User, update_analytics, get_analytics_data
-from app.pan import router as pan_verification_router
-from app.rpd import router as rpd_router
-from app.services import register_user, login_user, fetch_refresh_token
-
-from contextlib import asynccontextmanager
-
+import uvicorn
 from fastapi import Depends, FastAPI, Header, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.schemas import LoginResponseDto, UserCreateDto, UserResponseDto, RegisterResponseDto, TokenRefreshResponseDto, RefreshAccessTokenRequest
-
-import uvicorn
+from app.analytics import update_analytics_table
+from app.auth.utils import verify_password, TokenData, get_current_user
+from app.database import init_db, get_db, User, get_analytics_data
+from app.pan import router as pan_verification_router
+from app.rpd import router as rpd_router
+from app.schemas import LoginResponseDto, UserCreateDto, RegisterResponseDto, TokenRefreshResponseDto, \
+    RefreshAccessTokenRequest
+from app.services import register_user, login_user, fetch_refresh_token
 
 
 @asynccontextmanager
@@ -102,7 +98,7 @@ def read_root(accept: str = Header(None),user_agent: str = Header(None), usernam
 
 @app.get("/update-analytics/{username}")
 def success(username: str, db: Session = Depends(get_db), current_user: TokenData = Depends(get_current_user)):
-    update_analytics('pass', username, db)
+    update_analytics_table('pass', username, db)
 
 
 @app.get("/analyticsdata")
