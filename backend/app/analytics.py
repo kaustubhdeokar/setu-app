@@ -4,7 +4,8 @@ from app.models import Analytics
 
 def update_analytics_table(case: str, username: str, db: Session):
     analytics_entry = db.query(Analytics).filter(Analytics.username == username).first()
-
+    if username is None:
+        raise Exception('username should not be None.')
     if not analytics_entry:
         if case == "kyc_fail":
             new_analytics_entry = Analytics(

@@ -5,7 +5,7 @@ from app.schemas import TokenData
 import secrets
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel
+
 
 SECRET_KEY = secrets.token_hex(32)
 ALGORITHM = "HS256"

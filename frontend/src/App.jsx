@@ -3,7 +3,6 @@ import "./App.css";
 import KYCValidation from "./components/KYCValidation";
 import Login from "./components/Login";
 import Registration from "./components/Registration";
-import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 
 import {
@@ -20,7 +19,6 @@ const PrivateRoute = ({ children }) => {
 };
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <div>
@@ -45,7 +43,7 @@ function App() {
             }
           />
 
-          <Route path="/" element={<Login />} />
+        <Route path="/" element={<Login />} />
         </Routes>
         <p>
         Go to <NavLink to="/stats">/stats</NavLink> for statistics. (Admin){" "}
