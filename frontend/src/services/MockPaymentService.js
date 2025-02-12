@@ -3,7 +3,7 @@ import config from "../config/config";
 
 export const makePaymentRequest = async () => 
 {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('access_token'); 
     const API_URL = config.apiUrl;
     try{
         const response = await axios.post(`${API_URL}/api/verify/ban/reverse`, {}, {
@@ -29,7 +29,7 @@ export const makePaymentRequest = async () =>
 }
 
 export const fetchBankDetails = async (request_id) => {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('access_token'); 
     const API_URL = config.apiUrl;
     try{
         const response = await axios.get(`${API_URL}/api/verify/ban/reverse/`+request_id, {
@@ -56,7 +56,7 @@ export const fetchBankDetails = async (request_id) => {
 }
 
 export const updateAnalytics = async (username) => {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('access_token'); 
     const API_URL = config.apiUrl;
     console.log('update analytics triggered.')
     try{

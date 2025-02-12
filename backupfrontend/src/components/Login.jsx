@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {login} from '../services/User'
 import { useEffect } from 'react';
 import { logout } from '../services/User';
+
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({

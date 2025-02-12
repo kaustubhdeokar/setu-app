@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {login} from '../services/User'
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { login } from "../services/User";
+import { logout } from "../services/User";
+
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -15,6 +17,11 @@ const Login = () => {
       [e.target.name]: e.target.value,
     });
   };
+
+  useEffect(() => {
+    console.log("logout triggered on page load.");
+    logout();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

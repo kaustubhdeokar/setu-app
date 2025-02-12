@@ -32,6 +32,12 @@ export const registration = async (formData) => {
   }
 };
 
+export const logout = () => {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("user");
+}
+
 export const login = async (formData) => {
   const payload = { username: formData.username, password: formData.password };
   const API_URL = config.apiUrl;
@@ -75,7 +81,7 @@ export const isUserLoggedIn = () => {
 
 export const getAnalyticsEntries = async () => {
   const API_URL = config.apiUrl;
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("access_token");
   try {
     const response = await axios.get(`${API_URL}/analyticsdata`, {
       headers: {
